@@ -11,7 +11,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'docker build -t watri/demo::$(git rev-parse --short HEAD)${BUILD_NUMBER} -f Dockerfile .'
+                sh 'docker build -t watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER} -f Dockerfile .'
             }
         }
         stage('Image Registry') {
