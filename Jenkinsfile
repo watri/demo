@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Image Registry') {
             steps {
-                sh 'docker push watri/demo::$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+                sh 'docker push watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
             }
         }
         stage('Deploy to Cluster') {
