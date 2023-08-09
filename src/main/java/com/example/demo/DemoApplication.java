@@ -16,7 +16,7 @@ public class DemoApplication {
 
 	@RequestMapping("/")  
 	public String home() {  
-		return "Hello world, Java Spring boot.";  
+		return "Hello world, Java Spring boot. \nChange 1";  
 	}
  
 }
