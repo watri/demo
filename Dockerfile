@@ -9,6 +9,6 @@ RUN mvn clean package -DskipTests
 # Stage 2: Create a lightweight image to run the application
 FROM openjdk:11-jre-slim
 WORKDIR /app
-COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/demo-dcid-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
