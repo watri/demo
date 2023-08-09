@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                 echo "Deploying to Docker destop Cluster"
-                sed -i 's/latest/$(git rev-parse --short HEAD)${BUILD_NUMBER}/' deployment/deployment.yaml 
+                sed -i 's|latest|$(git rev-parse --short HEAD)${BUILD_NUMBER}|' deployment/deployment.yaml 
                 kubectl config use-context docker-desktop && kubectl apply -f deployment/deployment.yaml 
                 '''
 
