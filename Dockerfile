@@ -1,5 +1,5 @@
 # Stage 1: Build the application with Maven
-FROM eclipse-temurin:17-jdk-alpine-jammy AS builder
+FROM eclipse-temurin:17-jdk-alpine AS builder
 WORKDIR /opt/app
 
 # Create non-root user only once
@@ -14,7 +14,7 @@ COPY ./src ./src
 RUN ./mvnw clean install
 
 # Stage 2: Final image for running the application
-FROM eclipse-temurin:17-jre-alpine-jammy AS final
+FROM eclipse-temurin:17-jre-alpine AS final
 
 # Reuse non-root user from builder stage
 COPY --from=builder /etc/passwd /etc/passwd
