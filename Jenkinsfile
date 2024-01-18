@@ -19,6 +19,11 @@ pipeline {
                 '''
             }
         }
+        stage('Dockerfie Scan Hadolint') {
+            steps {
+                sh 'hadolint Dockerfile'
+            }
+        }
         stage('Build') {
             steps {
                 sh 'docker build -t watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER} -f Dockerfile .'
