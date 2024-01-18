@@ -29,7 +29,12 @@ pipeline {
                 sh 'docker build -t watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER} -f Dockerfile .'
             }
         }
-        stage('Image Registry') {
+        stage('Image Scan Trivy') {
+            steps {
+                sh 'trivy image --config path/to/trivy.yaml watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+            }
+        }
+        stage('Push Image to Registry') {
             steps {
                 withDockerRegistry([ credentialsId: 'docker-hub-cred', url: '' ]) {
                 sh  'docker push watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'

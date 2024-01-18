@@ -2,12 +2,13 @@
 FROM maven:3.8.4-openjdk-11 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn dependency:go-offline
+RUN mvn clean package -DskipTests && \
+    rm -rf /app/target/classes
 
 # Stage 2: Create a lightweight image to run the application
-FROM openjdk:11-jre-slim
+FROM adoptopenjdk:11-jre-hotspot-bionic as final
 WORKDIR /app
 COPY --from=build /app/target/demo-dcid-SNAPSHOT.jar app.jar
 EXPOSE 8080
