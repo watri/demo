@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Dockerfie Scan Hadolint') {
             steps {
-                sh 'hadolint Dockerfile'
+                sh 'hadolint --config hadolint.yaml Dockerfile'
             }
         }
         stage('Build') {
@@ -31,7 +31,7 @@ pipeline {
         }
         stage('Image Scan Trivy') {
             steps {
-                sh 'trivy image --config path/to/trivy.yaml watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+                sh 'trivy image --config trivy.yaml watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
             }
         }
         stage('Push Image to Registry') {

@@ -1,15 +1,17 @@
 # Stage 1: Build the application with Maven
-FROM maven:3.8.4-openjdk-11 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn dependency:go-offline
-RUN mvn clean package -DskipTests && \
-    rm -rf /app/target/classes
+FROM eclipse-temurin:17-jdk-jammy as builder
+WORKDIR /opt/app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+COPY ./src ./src
+RUN ./mvnw clean install
 
-# Stage 2: Create a lightweight image to run the application
-FROM adoptopenjdk:11-jre-hotspot-bionic as final
-WORKDIR /app
-COPY --from=build /app/target/demo-dcid-SNAPSHOT.jar app.jar
+# Stage 2: final image for run the application
+FROM eclipse-temurin:17-jre-jammy as final
+RUN addgroup demogroup; adduser  --ingroup demogroup --disabled-password kerapuh
+USER kerapuh
+WORKDIR /opt/app
 EXPOSE 8080
+COPY --from=builder /opt/app/target/demo-dcid-SNAPSHOT.jar /opt/app/app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
