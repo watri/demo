@@ -5,7 +5,7 @@ WORKDIR /opt/app
 # Copy build files and dependencies
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
-
+RUN chmod +x ./mvnw
 # Make Maven wrapper executable and download dependencies
 RUN ./mvnw dependency:go-offline
 
