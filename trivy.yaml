@@ -1,6 +1,6 @@
 timeout: 10m
 format: template
-template : "/usr/local/share/trivy/templates/html.tpl"
+template : "@/usr/local/share/trivy/templates/html.tpl"
 dependency-tree: true
 list-all-pkgs: true
 exit-code: 1
@@ -24,4 +24,4 @@ vulnerability:
     - library
   ignore-unfixed: true
 db:
-  skip-update: false
+  skip-update: true
