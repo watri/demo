@@ -11,6 +11,7 @@ pipeline {
     stages {
         stage('Git Clone') {
             steps {
+                cleanWs()
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/watri/demo.git']])
             }
         }
@@ -60,8 +61,6 @@ pipeline {
                 echo "Deployment Check Development"
                 kubectl config use-context docker-desktop && kubectl rollout status deployment/app-demo-deployment -n default --timeout=300s
                 '''
-            
-                cleanWs()
             }
         }
     }
