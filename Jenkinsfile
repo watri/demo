@@ -64,7 +64,9 @@ pipeline {
                 cleanWs()
             }
         }
-        post {
+    }
+
+    post {
         always {
             archiveArtifacts artifacts: 'result.html', followSymlinks: false
         }
