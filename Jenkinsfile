@@ -4,7 +4,9 @@ pipeline {
         PATH = "$PATH:/usr/local/bin/"
     }
     triggers {
-        GenericTrigger causeString: 'Triggered on push', genericVariables: [[defaultValue: '', key: 'branch', regexpFilter: '', value: '$.push.changes[0].old.name']], printContributedVariables: true, printPostContent: true, regexpFilterExpression: '^(master)*?$', regexpFilterText: '$branch', token: 'demo', tokenCredentialId: ''
+        GenericTrigger (
+            causeString: 'Triggered on push', genericVariables: [[defaultValue: '', key: 'branch', regexpFilter: '', value: '$.push.changes[0].old.name']], printContributedVariables: true, printPostContent: true, regexpFilterExpression: '^(master)*?$', regexpFilterText: '$branch', token: 'demo', tokenCredentialId: ''
+        )
     }
     stages {
         stage('Git Clone') {
