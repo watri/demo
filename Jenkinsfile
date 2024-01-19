@@ -32,6 +32,7 @@ pipeline {
         stage('Image Scan Trivy') {
             steps {
                 sh 'trivy image --config trivy.yaml watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+                archiveArtifacts artifacts: 'result.json', followSymlinks: false
             }
         }
         stage('Push Image to Registry') {
