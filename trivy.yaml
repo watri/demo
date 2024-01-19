@@ -1,9 +1,10 @@
 timeout: 10m
-format: json
+format: template
+template : "/usr/local/share/trivy/templates/html.tpl"
 dependency-tree: true
 list-all-pkgs: true
 exit-code: 1
-output: result.json
+output: result.html
 severity:
   - HIGH
   - CRITICAL
