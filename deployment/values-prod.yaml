@@ -32,13 +32,13 @@ service:
 ingress:
   enabled: false
 
-resources:
-  limits:
-    cpu: 10m
-    memory: 128Mi
-  requests:
-    cpu: 10m
-    memory: 128Mi
+# resources:
+#   limits:
+#     cpu: 10m
+#     memory: 128Mi
+#   requests:
+#     cpu: 10m
+#     memory: 128Mi
 
 livenessProbe:
   httpGet:
@@ -48,6 +48,8 @@ readinessProbe:
   httpGet:
     path: /
     port: http
+  initialDelaySeconds: 5
+  periodSeconds: 30
 
 autoscaling:
   enabled: false
