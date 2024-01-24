@@ -16,7 +16,7 @@ spec:
       - name: app-demo-container
         image: watri/demo:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
 
 ---
 apiVersion: v1
@@ -30,5 +30,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 80
       nodePort: 30001
