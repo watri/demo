@@ -19,5 +19,5 @@ WORKDIR /opt/app
 
 # Copy built JAR file from builder stage, ensuring ownership by appuser
 COPY --from=builder /opt/app/target/demo-dcid-SNAPSHOT.jar /opt/app/app.jar
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["java", "-jar", "app.jar"]

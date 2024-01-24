@@ -25,7 +25,7 @@ securityContext: {}
 
 service:
   type: NodePort
-  targetPort : 8080
+  targetPort : 80
   NodePort : 30001
   port: 80
 
