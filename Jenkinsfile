@@ -52,7 +52,7 @@ pipeline {
                 sh '''
                 #!/bin/bash
                 echo "Deploying to Docker destop Cluster"
-                helm upgrade --install --wait --timeout=300s demo-service demo/demo --set=image.tag=$(git rev-parse --short HEAD)${BUILD_NUMBER} --namespace=prod --kube-context=docker-desktop -f developemen/values-prod.yaml
+                helm upgrade --install --wait --timeout=300s demo-service demo/demo --set=image.tag=$(git rev-parse --short HEAD)${BUILD_NUMBER} --namespace=prod --kube-context=docker-desktop -f deployment/values-prod.yaml
                 '''
                 // sed -i "s|latest|$(git rev-parse --short HEAD)${BUILD_NUMBER}|g" deployment/deployment.yaml 
                 // kubectl config use-context docker-desktop && kubectl apply -f deployment/deployment.yaml 
