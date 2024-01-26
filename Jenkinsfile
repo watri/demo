@@ -53,29 +53,6 @@ pipeline {
                 }
             }
         }
-        
-        // stage('Update Values File for ArgoCD') {
-        //     environment {
-        //         GIT_REPO_NAME = "demo-chart" 
-        //         GIT_USER_NAME = "watri"
-        //     }
-        //     steps {
-        //         dir('demo-chart') git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo-chart.git'
-        //         withCredentials([string(credentialsId: 'github-key', variable: 'GITHUB_TOKEN')]) {
-        //             sh """
-        //                 git config user.email "chieewhatt@gmail.com" 
-        //                 git config user.name "watri"
-        //                 currenttag=$(grep -oP 'tag:\s*"\K[^"]*' charts/demo/values-prod.yaml)
-        //                 sed -i "s/tag: \"$currenttag\"/tag: \"${IMAGETAG}\"/" charts/demo/values-prod.yaml
-        //                 git add charts/demo/values-prod.yaml
-        //                 git commit -m "Update image to version ${IMAGETAG}"
-        //                 git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
-        //                 git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-        //             """
-        //             }
-        //         }
-        //     }
-        // }
         stage('Update Values File for ArgoCD') {
             environment {
                 GIT_REPO_NAME = "demo-chart"
@@ -90,35 +67,34 @@ pipeline {
                             sh """
                                 git config user.email "chieewhatt@gmail.com" 
                                 git config user.name "watri"
-                                currenttag=$(yq .image.tag charts/demo/values-prod.yaml)
+                                currenttag=\$(yq .image.tag charts/demo/values-prod.yaml)
                                 yq -i '.image.tag = "${IMAGETAG}"' charts/demo/values-prod.yaml
                                 git add charts/demo/values-prod.yaml
                                 git commit -m "Update image to version ${IMAGETAG}"
                                 git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
                             
-                            """
-                        
-                        }
+                            """  
                     }
                 }
             }
-        stage('Deploy to Cluster') {
-            steps {
-                sh '''
-                #!/bin/bash
-                echo "Deploying to Docker destop Cluster"
-                helm upgrade --install --wait --timeout=300s demo-service demo/demo --set=image.tag=$(git rev-parse --short HEAD)${BUILD_NUMBER} --namespace=prod --kube-context=docker-desktop -f deployment/values-prod.yaml
-                '''
-                // sed -i "s|latest|$(git rev-parse --short HEAD)${BUILD_NUMBER}|g" deployment/deployment.yaml 
-                // kubectl config use-context docker-desktop && kubectl apply -f deployment/deployment.yaml 
-
-                sh '''
-                #!/bin/bash
-                echo "Deployment Check Development"
-                kubectl config use-context docker-desktop && kubectl rollout status deployment/demo-service -n prod --timeout=300s
-                '''
-            }
         }
+        // stage('Deploy to Cluster') {
+        //     steps {
+        //         sh '''
+        //         #!/bin/bash
+        //         echo "Deploying to Docker destop Cluster"
+        //         helm upgrade --install --wait --timeout=300s demo-service demo/demo --set=image.tag=$(git rev-parse --short HEAD)${BUILD_NUMBER} --namespace=prod --kube-context=docker-desktop -f deployment/values-prod.yaml
+        //         '''
+        //         // sed -i "s|latest|$(git rev-parse --short HEAD)${BUILD_NUMBER}|g" deployment/deployment.yaml 
+        //         // kubectl config use-context docker-desktop && kubectl apply -f deployment/deployment.yaml 
+
+        //         sh '''
+        //         #!/bin/bash
+        //         echo "Deployment Check Development"
+        //         kubectl config use-context docker-desktop && kubectl rollout status deployment/demo-service -n prod --timeout=300s
+        //         '''
+        //     }
+        // }
     }
 
     post {
