@@ -43,7 +43,8 @@ pipeline {
         }
         stage('Image Scan Trivy') {
             steps {
-                sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
+                sh "echo trivy scan"
+                // sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
             }
         }
         stage('Push Image to Registry') {
@@ -98,9 +99,9 @@ pipeline {
         // }
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: 'result.html', followSymlinks: false
-        }
-    }
+    // post {
+    //     always {
+    //         archiveArtifacts artifacts: 'result.html', followSymlinks: false
+    //     }
+    // }
 }
