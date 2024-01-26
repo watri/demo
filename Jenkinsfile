@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         PATH = "$PATH:/usr/local/bin/"
+        IMAGETAG = ""
     }
     triggers {
         GenericTrigger (
@@ -12,7 +13,8 @@ pipeline {
         stage('Git Clone') {
             steps {
                 cleanWs()
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/watri/demo.git']])
+                git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo.git'
+                // checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/watri/demo.git']])
             }
         }
         stage('Change jar version') {
@@ -32,21 +34,74 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'docker build -t watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER} -f Dockerfile .'
+                script{
+                    IMAGETAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() + BUILD_NUMBER
+                    echo "Image Tag: ${IMAGETAG}"
+                }
+                sh "docker build -t watri/demo:${IMAGETAG} -f Dockerfile ."
             }
         }
         stage('Image Scan Trivy') {
             steps {
-                sh 'trivy image --config trivy.yaml watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+                sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
             }
         }
         stage('Push Image to Registry') {
             steps {
                 withDockerRegistry([ credentialsId: 'docker-hub-cred', url: '' ]) {
-                sh  'docker push watri/demo:$(git rev-parse --short HEAD)${BUILD_NUMBER}'
+                sh  "docker push watri/demo:${IMAGETAG}"
                 }
             }
         }
+        
+        // stage('Update Values File for ArgoCD') {
+        //     environment {
+        //         GIT_REPO_NAME = "demo-chart" 
+        //         GIT_USER_NAME = "watri"
+        //     }
+        //     steps {
+        //         dir('demo-chart') git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo-chart.git'
+        //         withCredentials([string(credentialsId: 'github-key', variable: 'GITHUB_TOKEN')]) {
+        //             sh """
+        //                 git config user.email "chieewhatt@gmail.com" 
+        //                 git config user.name "watri"
+        //                 currenttag=$(grep -oP 'tag:\s*"\K[^"]*' charts/demo/values-prod.yaml)
+        //                 sed -i "s/tag: \"$currenttag\"/tag: \"${IMAGETAG}\"/" charts/demo/values-prod.yaml
+        //                 git add charts/demo/values-prod.yaml
+        //                 git commit -m "Update image to version ${IMAGETAG}"
+        //                 git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+        //                 git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+        //             """
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Update Values File for ArgoCD') {
+            environment {
+                GIT_REPO_NAME = "demo-chart"
+                GIT_USER_NAME = "watri"
+            }
+            steps {
+                dir('demo-chart') {
+                    git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo-chart.git'
+                    
+                    withCredentials([string(credentialsId: 'github-key', variable: 'GITHUB_TOKEN')]) {
+                        script {
+                            sh """
+                                git config user.email "chieewhatt@gmail.com" 
+                                git config user.name "watri"
+                                currenttag=$(yq .image.tag charts/demo/values-prod.yaml)
+                                yq -i '.image.tag = "${IMAGETAG}"' charts/demo/values-prod.yaml
+                                git add charts/demo/values-prod.yaml
+                                git commit -m "Update image to version ${IMAGETAG}"
+                                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                            
+                            """
+                        
+                        }
+                    }
+                }
+            }
         stage('Deploy to Cluster') {
             steps {
                 sh '''
