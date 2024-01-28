@@ -34,7 +34,7 @@ pipeline {
         }
         stage('SAST using Snyk') {
             steps {
-                echo 'Testing'
+                echo 'chmod +x mvnw'
                 snykSecurity(
                 snykInstallation: 'snyk@latest',
                 snykTokenId: 'synk-api',
