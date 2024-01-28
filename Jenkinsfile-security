@@ -4,6 +4,10 @@ pipeline {
         PATH = "$PATH:/usr/local/bin/"
         IMAGETAG = ""
     }
+    tools {
+        maven 'maven@latest'
+        snyk 'snyk@latest'
+    }
     triggers {
         GenericTrigger (
             causeString: 'Triggered on push', genericVariables: [[defaultValue: '', key: 'branch', regexpFilter: '', value: '$.push.changes[0].old.name']], printContributedVariables: true, printPostContent: true, regexpFilterExpression: '^(master)*?$', regexpFilterText: '$branch', token: 'demo', tokenCredentialId: ''
