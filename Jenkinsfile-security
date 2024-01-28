@@ -12,12 +12,12 @@ pipeline {
     stages {
         stage('Git Clone') {
             steps {
-                cleanWs()
+                // cleanWs()
                 git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo.git'
                 // checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/watri/demo.git']])
             }
         }
-        stage('Change jar version') {
+        stage('Change Jar Version') {
             steps {
                 sh '''
                 #!/bin/bash
@@ -28,22 +28,33 @@ pipeline {
                 '''
             }
         }
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -Dmaven.test.skip=true'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
         stage('Dockerfie Scan Hadolint') {
             steps {
                 sh 'hadolint --config hadolint.yaml Dockerfile'
             }
         }
-        stage('SAST using Snyk') {
+        stage('SAST Using Snyk') {
             steps {
                 echo 'Testing...'
                 snykSecurity(
                 snykInstallation: 'snyk@latest',
                 snykTokenId: 'synk-api',
+                severity: 'critical',
 
                 )
             }
         }
-        stage('Build') {
+        stage('Build Image') {
             steps {
                 // script{
                 //     IMAGETAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() + BUILD_NUMBER
