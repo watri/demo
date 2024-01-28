@@ -62,8 +62,8 @@ pipeline {
             steps {
                 // withDockerRegistry([ credentialsId: 'docker-hub-cred', url: '' ]) {
                 // sh  "docker push watri/demo:${IMAGETAG}"
+                // }
                 sh "echo push"
-                }
             }
         }
         stage('Update Values File for ArgoCD') {
