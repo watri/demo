@@ -23,6 +23,7 @@ pipeline {
                 #!/bin/bash
                 sed -i "s|dcid|${BUILD_NUMBER}|g" pom.xml
                 sed -i "s|dcid|${BUILD_NUMBER}|g" Dockerfile
+                chmod +x mvnw
                 whoami
                 '''
             }
@@ -34,7 +35,7 @@ pipeline {
         }
         stage('SAST using Snyk') {
             steps {
-                echo 'chmod +x mvnw'
+                echo 'Testing...'
                 snykSecurity(
                 snykInstallation: 'snyk@latest',
                 snykTokenId: 'synk-api',
