@@ -38,7 +38,7 @@ pipeline {
                 snykSecurity(
                 snykInstallation: 'snyk@latest',
                 snykTokenId: 'synk-api',
-                
+
                 )
             }
         }
@@ -91,7 +91,7 @@ pipeline {
             //             }
             //         }
             //     }
-            // }
+            }
         }
         // stage('Deploy to Cluster') {
         //     steps {
