@@ -55,7 +55,7 @@ pipeline {
                             -s './'
                             -f 'ALL' 
                             --prettyPrint''
-                            --nvdApiKey '${GITHUB_TOKEN}' 
+                            --nvdApiKey '${NVD-KEY}' 
                             ''', odcInstallation: 'OWASP dependency-check'
                 
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
