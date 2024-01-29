@@ -47,17 +47,6 @@ pipeline {
                 sh 'hadolint --config hadolint.yaml Dockerfile'
             }
         }
-        stage('SCA Using OWASP Dependency-Check') {
-            steps {
-                dependencyCheck additionalArguments: ''' 
-                            -o './'
-                            -s './'
-                            -f 'ALL' 
-                            --prettyPrint''', odcInstallation: 'OWASP dependency-check'
-                
-                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-            }
-        }
         stage('SAST Using Snyk') {
             steps {
                 echo 'Testing...'
