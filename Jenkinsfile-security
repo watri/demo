@@ -50,14 +50,14 @@ pipeline {
         stage('SCA Using OWASP Dependency-Check') {
             steps {
                 withCredentials([string(credentialsId: 'NVD-KEY', variable: 'NVD-KEY')]) {
+                sh "echo ${NVD-KEY}"
                 dependencyCheck additionalArguments: ''' 
                             -o './'
                             -s './'
                             -f 'ALL' 
-                            --prettyPrint''
                             --nvdApiKey $NVD-KEY
+                            --prettyPrint
                             ''', odcInstallation: 'OWASP dependency-check'
-                sh "echo $NVD-KEY && echo ${NVD-KEY}"
                 
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
                 }
