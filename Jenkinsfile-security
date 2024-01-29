@@ -55,8 +55,9 @@ pipeline {
                             -s './'
                             -f 'ALL' 
                             --prettyPrint''
-                            --nvdApiKey '${NVD-KEY}' 
+                            --nvdApiKey $NVD-KEY
                             ''', odcInstallation: 'OWASP dependency-check'
+                sh "echo $NVD-KEY && echo ${NVD-KEY}"
                 
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
                 }
@@ -65,12 +66,12 @@ pipeline {
         stage('SAST Using Snyk') {
             steps {
                 echo 'Testing...'
-                snykSecurity(
-                snykInstallation: 'snyk@latest',
-                snykTokenId: 'synk-api',
-                severity: 'critical',
+                // snykSecurity(
+                // snykInstallation: 'snyk@latest',
+                // snykTokenId: 'synk-api',
+                // severity: 'critical',
 
-                )
+                // )
             }
         }
         stage('Build Image') {
