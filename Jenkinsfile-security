@@ -6,7 +6,6 @@ pipeline {
     }
     tools {
         maven 'maven@latest'
-        snyk 'snyk@latest'
     }
     triggers {
         GenericTrigger (
@@ -71,9 +70,8 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarcloud') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=$ORGANIZATION \
-                        -Dsonar.java.binaries=build/classes/java/ \
+                        -Dsonar.projectName=demo \
                         -Dsonar.projectKey=$PROJECT_NAME \
-                        -Dsonar.sources=.
                         '''
                 }
             }
