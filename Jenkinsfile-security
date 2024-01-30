@@ -62,15 +62,20 @@ pipeline {
                 }
             }
         }
-        stage('SAST Using Snyk') {
+        stage('SAST Using Sonarcloud') {
+            environment {
+                SCANNER_HOME = tool 'sonarcloud5'
+                ORGANIZATION = "watri"
+                PROJECT_NAME = "watri_demo"
+            }
             steps {
-                echo 'Testing...'
-                // snykSecurity(
-                // snykInstallation: 'snyk@latest',
-                // snykTokenId: 'synk-api',
-                // severity: 'critical',
-
-                // )
+                withSonarQubeEnv('sonarcloud') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=$ORGANIZATION \
+                        -Dsonar.java.binaries=build/classes/java/ \
+                        -Dsonar.projectKey=$PROJECT_NAME \
+                        -Dsonar.sources=.
+                        '''
+                }
             }
         }
         stage('Build Image') {
