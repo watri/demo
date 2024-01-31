@@ -73,6 +73,7 @@ pipeline {
                         -Dsonar.projectName=demo \
                         -Dsonar.java.binaries=target/classes \
                         -Dsonar.projectKey=$PROJECT_NAME \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
                         '''
                 }
             }
