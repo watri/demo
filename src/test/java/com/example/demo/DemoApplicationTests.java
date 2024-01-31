@@ -8,6 +8,8 @@ class DemoApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// This is a placeholder test method. Application context loading is implicitly tested
+    	// by the @SpringBootTest annotation. Add specific tests for your components as needed.
 	}
 
 }
