@@ -101,7 +101,7 @@ pipeline {
         }
         stage('Image Scan Trivy') {
             steps {
-                sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
+                sh "trivy image --cache-dir /var/lib/jenkins/trivy/ --config trivy.yaml watri/demo:${IMAGETAG}"
             }
         }
         stage('Push Image to Registry') {
