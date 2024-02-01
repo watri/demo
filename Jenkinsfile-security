@@ -17,7 +17,6 @@ pipeline {
             steps {
                 // cleanWs()
                 git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo.git'
-                // checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/watri/demo.git']])
             }
         }
         stage('Change Jar Version') {
@@ -81,9 +80,9 @@ pipeline {
         }
         stage("Quality Gate"){
             steps {
-                timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+                timeout(time: 1, unit: 'HOURS') {
                     script {
-                        def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+                        def qg = waitForQualityGate() 
                         if (qg.status != 'OK') {
                             error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
@@ -93,26 +92,23 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                // script{
-                //     IMAGETAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() + BUILD_NUMBER
-                //     echo "Image Tag: ${IMAGETAG}"
-                // }
-                // sh "docker build -t watri/demo:${IMAGETAG} -f Dockerfile ."
-                sh "echo build"
+                script{
+                    IMAGETAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() + BUILD_NUMBER
+                    echo "Image Tag: ${IMAGETAG}"
+                }
+                sh "docker build -t watri/demo:${IMAGETAG} -f Dockerfile ."
             }
         }
         stage('Image Scan Trivy') {
             steps {
-                sh "echo trivy scan"
-                // sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
+                sh "trivy image --config trivy.yaml watri/demo:${IMAGETAG}"
             }
         }
         stage('Push Image to Registry') {
             steps {
-                // withDockerRegistry([ credentialsId: 'docker-hub-cred', url: '' ]) {
-                // sh  "docker push watri/demo:${IMAGETAG}"
-                // }
-                sh "echo push"
+                withDockerRegistry([ credentialsId: 'docker-hub-cred', url: '' ]) {
+                sh  "docker push watri/demo:${IMAGETAG}"
+                }
             }
         }
         stage('Update Values File for ArgoCD') {
@@ -121,27 +117,53 @@ pipeline {
                 GIT_USER_NAME = "watri"
             }
             steps {
-                sh "echo ArgoCD"
-            //     dir('demo-chart') {
-            //         git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo-chart.git'
+                dir('demo-chart') {
+                    git branch: 'master', credentialsId: 'github-login', url: 'https://github.com/watri/demo-chart.git'
                     
-            //         withCredentials([string(credentialsId: 'github-key', variable: 'GITHUB_TOKEN')]) {
-            //             script {
-            //                 sh """
-            //                     git config user.email "chieewhatt@gmail.com" 
-            //                     git config user.name "watri"
-            //                     currenttag=\$(yq .image.tag charts/demo/values-prod.yaml)
-            //                     yq -i '.image.tag = "${IMAGETAG}"' charts/demo/values-prod.yaml
-            //                     git add charts/demo/values-prod.yaml
-            //                     git commit -m "Update image to version ${IMAGETAG}"
-            //                     git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                    withCredentials([string(credentialsId: 'github-key', variable: 'GITHUB_TOKEN')]) {
+                        script {
+                            sh """
+                                git config user.email "chieewhatt@gmail.com" 
+                                git config user.name "watri"
+                                currenttag=\$(yq .image.tag charts/demo/values-prod.yaml)
+                                yq -i '.image.tag = "${IMAGETAG}"' charts/demo/values-prod.yaml
+                                git add charts/demo/values-prod.yaml
+                                git commit -m "Update image to version ${IMAGETAG}"
+                                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
                             
-            //                 """  
-            //             }
-            //         }
-            //     }
+                            """  
+                        }
+                    }
+                }
             }
         }
+        stage('Wait The Deployment') {
+            steps {
+                sleep(time: 4, unit: 'MINUTES')
+                sh 'kubectl rollout status deployment/demo-service -n prod --timeout=300s'
+            }
+        }
+        stage('DAST Using OWASP ZAP') {
+            steps {
+                script {
+                    def currentDate = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+                    env.reportFileName = "OWASP_${currentDate}.html"
+
+                    sh "docker exec owasp zap-baseline.py -t http://watri.site:30001 -r ${reportFileName} -I"
+                }
+            }
+        }
+        stage('Copy Report to Workspace') {
+        steps {
+            script {
+                sh """
+                docker cp owasp:/zap/wrk/${env.reportFileName} ${WORKSPACE}/${env.reportFileName}
+                """
+                }
+            }
+        }
+
+        // ##### Stage for deploy using jenkins ###### 
         // stage('Deploy to Cluster') {
         //     steps {
         //         sh '''
@@ -161,9 +183,9 @@ pipeline {
         // }
     }
 
-    // post {
-    //     always {
-    //         archiveArtifacts artifacts: 'result.html', followSymlinks: false
-    //     }
-    // }
+    post {
+        always {
+            archiveArtifacts artifacts: 'result.html, OWASP_*.html', followSymlinks: false
+        }
+    }
 }

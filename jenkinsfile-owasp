@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    environment {
+        PATH = "$PATH:/usr/local/bin/"
+        IMAGETAG = ""
+    }
+    stages {
+        stage('DAST Using OWASP ZAP') {
+            steps {
+                script {
+                    def currentDate = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+                    env.reportFileName = "OWASP_${currentDate}.html"
+
+                    sh "docker exec owasp zap-baseline.py -t http://watri.site:30001 -r ${reportFileName} -I"
+                }
+            }
+        }
+        stage('Copy Report to Workspace') {
+        steps {
+            script {
+                sh """
+                docker cp owasp:/zap/wrk/${env.reportFileName} ${WORKSPACE}/${env.reportFileName}
+                """
+                }
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'OWASP_*.html', followSymlinks: false
+        }
+    }
+}
