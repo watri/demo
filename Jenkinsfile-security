@@ -139,7 +139,7 @@ pipeline {
         }
         stage('Wait The Deployment') {
             steps {
-                sleep(time: 4, unit: 'MINUTES')
+                sleep(time: 5, unit: 'MINUTES')
                 sh 'kubectl rollout status deployment/demo-service -n prod --timeout=300s'
             }
         }
