@@ -52,6 +52,15 @@
 						</goals>
 					</execution>
 					<execution>
+						<id>prepare-agent-integration</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+						<configuration>
+							<propertyName>jacocoArgLineIntegration</propertyName>
+						</configuration>
+					</execution>	
+					<execution>
 						<id>report</id>
 						<phase>test</phase>
 						<goals>
