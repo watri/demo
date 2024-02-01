@@ -18,6 +18,7 @@ FROM eclipse-temurin:17-jre-alpine AS final
 WORKDIR /opt/app
 
 # Copy built JAR file from builder stage, ensuring ownership by appuser
-COPY --from=builder /opt/app/target/demo-dcid-SNAPSHOT.jar /opt/app/app.jar
+# COPY --from=builder /opt/app/target/demo-dcid-SNAPSHOT.jar /opt/app/app.jar
+COPY target/demo-dcid-SNAPSHOT.jar /opt/app/app.jar
 EXPOSE 80
 ENTRYPOINT ["java", "-jar", "app.jar"]
