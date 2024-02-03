@@ -1,3 +1,3 @@
-Readme
+Diagram
 
-Secret : SoEFSuTx6oGjUbKsHixcf1jRGpwPXeET2Fk33FaQ
+![Diagam](deployment/cicd-security-learning.drawio.svg)
