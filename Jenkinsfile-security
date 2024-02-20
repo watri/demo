@@ -30,6 +30,13 @@ pipeline {
                 '''
             }
         }
+        stage('Secret Scanning') {
+            steps {
+                script {
+                    sh "trufflehog filesystem --json --no-update ${WORKSPACE} --fail > trufflehog_output.json"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 sh 'mvn clean install -Dmaven.test.skip=true'
@@ -185,7 +192,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'result.html, OWASP_*.html', followSymlinks: false
+            archiveArtifacts artifacts: 'result.html, OWASP_*.html, trufflehog_output.json', followSymlinks: false
         }
     }
 }
